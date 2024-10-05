@@ -1,1 +1,0 @@
-// Individual NEOs with size, trajectory, etc
