@@ -1,7 +1,7 @@
 export const fetch_NEO_Asteroids = async () => {
   try {
     const response = await fetch(
-      '/api/sbdb_query.api?fields=full_name,epoch,e,a,q,i,name,pha,diameter,per&sb-kind=a&sb-group=neo&sb-ns=n',
+      '/api/sbdb_query.api?fields=spkid,full_name,pha,diameter,epoch,e,a,q,w,tp,i,n,ad,ma,om,per,moid,class,pdes,orbit_id&sb-kind=a&sb-group=neo&sb-ns=n',
       {
         method: 'GET',
         headers: {
@@ -31,7 +31,7 @@ export const fetch_NEO_Asteroids = async () => {
 export const fetch_NEO_Comets = async () => {
   try {
     const response = await fetch(
-      '/api/sbdb_query.api?fields=full_name,epoch,e,a,q,i,name,pha,diameter,per&sb-kind=c&sb-group=neo&sb-ns=n',
+      '/api/sbdb_query.api?fields=spkid,full_name,pha,diameter,epoch,e,a,q,w,tp,i,n,ad,ma,om,per,moid,class,pdes,orbit_id&sb-kind=c&sb-group=neo&sb-ns=n',
       {
         method: 'GET',
         headers: {
@@ -62,7 +62,7 @@ export const fetch_NEO_Comets = async () => {
 export const fetch_PHA_Asteroids = async () => {
   try {
     const response = await fetch(
-      '/api/sbdb_query.api?fields=full_name,epoch,e,a,q,i,name,pha,diameter,per&sb-kind=a&sb-group=pha&sb-ns=n',
+      '/api/sbdb_query.api?fields=spkid,full_name,pha,diameter,epoch,e,a,q,w,tp,i,n,ad,ma,om,per,moid,class,pdes,orbit_id&sb-kind=a&sb-group=pha&sb-ns=n',
       {
         method: 'GET',
         headers: {
