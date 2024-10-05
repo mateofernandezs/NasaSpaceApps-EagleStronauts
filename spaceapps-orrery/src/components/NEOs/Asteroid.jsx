@@ -1,9 +1,11 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import * as THREE from 'three';
+import AsteroidInfo from "./neoInfo.jsx";
 
 const AsteroidScene = () => {
     const mountRef = useRef(null);
     const asteroidRef = useRef(null);
+    const [selectedAsteroid, setSelectedAsteroid] = useState(null);
 
     useEffect(() => {
         const mount = mountRef.current;
@@ -32,11 +34,40 @@ const AsteroidScene = () => {
         scene.add(asteroid);
         asteroidRef.current = asteroid;
 
+        asteroid.geometry.computeBoundingBox();
+
         const animate = () => {
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         };
         animate();
+
+        const onMouseClick = (event) => {
+            const mouse = new THREE.Vector2();
+            const raycaster = new THREE.Raycaster();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(asteroid);
+            if (intersects.length > 0) {
+                setSelectedAsteroid({
+                    name: "IAU NAME",
+                    fullName: "NICOLE",
+                    PHA: "54132",
+                    diameter: "48 km",
+                    orbitID: "5463521",
+                    period: "40 años",
+                    earthMOID: "685312 au",
+                    SPK_ID: "123456",
+                    risk: "Y"
+                });
+            } else {
+                setSelectedAsteroid(null);
+            }
+        };
+
+        window.addEventListener("click", onMouseClick);
 
         const handleResize = () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -49,6 +80,7 @@ const AsteroidScene = () => {
         return () => {
             mount.removeChild(renderer.domElement);
             window.removeEventListener("resize", handleResize);
+            window.removeEventListener("click", onMouseClick);
             mount.removeEventListener("mousemove", handleMouseMove);
         };
     }, []);
@@ -78,6 +110,7 @@ const AsteroidScene = () => {
                     zIndex: 1,
                 }}
             ></div>
+            <AsteroidInfo asteroid={selectedAsteroid} />
         </div>
     );
 };
