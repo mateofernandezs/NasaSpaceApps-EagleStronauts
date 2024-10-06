@@ -16,7 +16,7 @@ export class Earth extends Planet {
 
     createPlanetLights(){
         const planetLightsMaterial = new MeshBasicMaterial({
-            map: this.loader.load('/solar-system-threejs/assets/earth-map-2.jpg'),
+            map: this.loader.load('/./src/assets/earth-map-2.jpg'),
             blending: AdditiveBlending,
         });
         const planeLightsMesh = new Mesh(
@@ -29,11 +29,11 @@ export class Earth extends Planet {
 
     createPlanetClouds(){
         const planetCloudsMaterial = new MeshStandardMaterial({
-            map: this.loader.load('/solar-system-threejs/assets/earth-map-3.jpg'),
+            map: this.loader.load('/./src/assets/earth-map-3.jpg'),
             transparent: true,
             opacity: 0.8,
             blending: AdditiveBlending,
-            alphaMap: this.loader.load('/solar-system-threejs/assets/earth-map-4.jpg'),
+            alphaMap: this.loader.load('/./src/assets/earth-map-4.jpg'),
         });
         const planetCloudsMesh = new Mesh(
             this.planetGeometry,

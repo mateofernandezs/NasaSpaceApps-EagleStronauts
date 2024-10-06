@@ -25,7 +25,7 @@ const NEO_Asteroids_toJson = (NEO_Asteroids_Data, NEO_Asteroids_Attr) => {
   return neoAsteroidsArray;
 };
 
-export const fetchNEOComets = async () => {
+export const getNEOComets = async () => {
   const result = await fetch_NEO_Comets();
   const NEO_Comets_Array = Neo_Commets_toJson(
     result.neo_c_data,
@@ -46,7 +46,7 @@ const Neo_Commets_toJson = (NEO_Comets_Data, NEO_Comets_Attr) => {
   return neoCometsArray;
 };
 
-export const fetchPHAAsteroids = async () => {
+export const getPHAAsteroids = async () => {
   const result = await fetch_PHA_Asteroids();
   const PHA_Asteroids_Array = PHA_Asteroids_toJson(
     result.pha_a_data,

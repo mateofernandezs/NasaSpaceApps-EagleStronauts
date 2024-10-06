@@ -1,8 +1,9 @@
 import React from 'react';
-import { Paper, Typography, Divider } from '@mui/material';
+import { Paper, Typography, Divider, IconButton } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
+import CloseIcon from '@mui/icons-material/Close'; // Import Close icon
 
-const AsteroidInfo = ({ asteroid }) => {
+const AsteroidInfo = ({ asteroid, onClose }) => { // Add onClose prop
     if (!asteroid) return null;
 
     return (
@@ -10,7 +11,7 @@ const AsteroidInfo = ({ asteroid }) => {
             elevation={3}
             style={{
                 position: 'absolute',
-                top: '350px',
+                top: '250px', // Adjust this value to raise the box
                 left: '60px',
                 width: '300px',
                 backgroundImage: 'linear-gradient(rgba(30, 30, 30, 0.9), rgba(100, 100, 100, 0.7))',
@@ -21,16 +22,21 @@ const AsteroidInfo = ({ asteroid }) => {
                 backdropFilter: 'blur(10px)',
             }}
         >
-            <Typography
-                variant="h4"
-                sx={{
-                    fontWeight: 'bold',
-                    fontFamily: 'Arial, sans-serif',
-                    fontSize: '2rem',
-                }}
-            >
-                {asteroid.name}
-            </Typography>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 'bold',
+                        fontFamily: 'Arial, sans-serif',
+                        fontSize: '2rem',
+                    }}
+                >
+                    {asteroid.name}
+                </Typography>
+                <IconButton onClick={onClose} style={{ color: 'white' }}>
+                    <CloseIcon />
+                </IconButton>
+            </div>
             <Divider style={{ backgroundColor: 'white', margin: '10px 0' }} />
 
             <Typography
