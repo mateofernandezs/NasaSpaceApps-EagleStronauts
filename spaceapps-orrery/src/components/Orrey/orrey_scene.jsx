@@ -8,6 +8,8 @@ import { Earth } from './earth.jsx';
 import Asteroid from '../NEOs/Asteroid.jsx';
 import AsteroidInfo from '../NEOs/neoInfo.jsx';
 import CenterSceneButton from './centerSceneButton.jsx';
+import PlanetInfo from '../PlanetInfo.jsx';
+import EarthInfo from '../EarthInfo.jsx';
 
 const MAX_ORBIT_RADIUS = 60;
 const MIN_ORBIT_RADIUS = 8;
@@ -15,25 +17,20 @@ const MIN_ORBIT_RADIUS = 8;
 const convertAsteroidData = (apiAsteroid) => {
   const semiMajorAxis = Math.max(
     MIN_ORBIT_RADIUS,
-    Math.min(MAX_ORBIT_RADIUS, parseFloat(apiAsteroid.a) * 10) // Adjust scaling factor as needed
+    Math.min(MAX_ORBIT_RADIUS, parseFloat(apiAsteroid.a) * 10)
   );
 
-  // Scale the orbit speed based on the period (per) or mean motion (n)
-  const orbitSpeed = parseFloat(apiAsteroid.n) * 0.0001; // Scale down the value for visualization
+  const orbitSpeed = parseFloat(apiAsteroid.n) * 0.0001;
 
-  // Use the eccentricity and inclination directly from the API
   const eccentricity = parseFloat(apiAsteroid.e);
-  const inclination = parseFloat(apiAsteroid.i) * 0.01; // Normalize inclination to a smaller range
+  const inclination = parseFloat(apiAsteroid.i) * 0.01;
 
-  // Set the asteroid size based on diameter (if available) or a default value
   const asteroidSize = apiAsteroid.diameter
     ? parseFloat(apiAsteroid.diameter) * 0.01
-    : 0.9; // Scale down if diameter is available
+    : 0.9;
 
-  // Default rotation speed
   const rotationSpeed = 0.01;
 
-  // Return the formatted asteroid data
   return {
     orbitSpeed,
     semiMajorAxis,
@@ -41,7 +38,7 @@ const convertAsteroidData = (apiAsteroid) => {
     inclination,
     asteroidSize,
     rotationSpeed,
-    asteroidTexture: '/assets/asteroid.jpg', // Default texture
+    asteroidTexture: '/assets/asteroid.jpg',
   };
 };
 
@@ -162,7 +159,9 @@ const initialCameraPosition = {
 
 export default function ThreeScene() {
   const [selectedAsteroid, setSelectedAsteroid] = React.useState(null);
+  const [selectedPlanet, setSelectedPlanet] = React.useState(null);
   const [planetPositions, setPlanetPositions] = React.useState([]);
+  const [earthIsSelected, setEarthIsSelected] = React.useState(false);
   const cameraRef = useRef(null);
   const controlsRef = useRef(null);
 
@@ -184,7 +183,14 @@ export default function ThreeScene() {
     scene.add(sun);
 
     planets.forEach((planet) => {
-      const planetObj = new Planet(planet).getPlanet();
+      const planetObj = new Planet({
+        ...planet,
+        onPlanetClick: () => {
+          handleClose();
+          setSelectedPlanet(planet);
+        },
+        camera: camera,
+      }).getPlanet();
       scene.add(planetObj);
 
       const position = planetObj.position.clone();
@@ -194,7 +200,10 @@ export default function ThreeScene() {
     asteroids.forEach((asteroidData) => {
       const asteroidObj = new Asteroid({
         ...asteroidData,
-        onAsteroidClick: setSelectedAsteroid,
+        onAsteroidClick: () => {
+          handleClose();
+          setSelectedAsteroid(asteroidData);
+        },
         camera: camera,
       }).getAsteroid();
       scene.add(asteroidObj);
@@ -210,6 +219,11 @@ export default function ThreeScene() {
       planetRotationSpeed: 0.01,
       planetRotationDirection: 'counterclockwise',
       planetTexture: '/assets/earth-map-1.jpg',
+      onPlanetClick: () => {
+        console.log('clickeando TIERAAAAAAAAAAAAAAAAAA');
+        handleClose();
+        setEarthIsSelected(true);
+      },
     }).getPlanet();
     scene.add(earth);
 
@@ -251,7 +265,9 @@ export default function ThreeScene() {
   }, []);
 
   const handleClose = () => {
-    setSelectedAsteroid(null); // Reset selected asteroid
+    setSelectedAsteroid(null);
+    setSelectedPlanet(null);
+    setEarthIsSelected(false);
   };
 
   const handleCenterScene = () => {
@@ -271,7 +287,13 @@ export default function ThreeScene() {
 
   return (
     <div>
-      <AsteroidInfo asteroid={selectedAsteroid} onClose={handleClose} />
+      {selectedAsteroid ? (
+        <AsteroidInfo asteroid={selectedAsteroid} onClose={handleClose} />
+      ) : null}
+      {selectedPlanet ? (
+        <PlanetInfo planet={selectedPlanet} onClose={handleClose} />
+      ) : null}
+      {earthIsSelected ? <EarthInfo onClose={handleClose} /> : null}
       <CenterSceneButton onClick={handleCenterScene} />
     </div>
   );

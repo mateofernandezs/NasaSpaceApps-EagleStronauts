@@ -12,6 +12,8 @@ import {
   MeshPhongMaterial,
   MeshBasicMaterial,
   IcosahedronGeometry,
+  Raycaster,
+  Vector2,
 } from 'three';
 
 export default class Planet {
@@ -20,17 +22,23 @@ export default class Planet {
   animate;
   planetGroup;
   planetGeometry;
+  onPlanetClick;
+  raycaster;
+  mouse;
 
   constructor({
     orbitSpeed = 1,
     orbitRadius = 1,
     orbitRotationDirection = 'clockwise',
-
+    onPlanetClick = null,
+    raycaster,
+    mouse,
+    camera = null,
     planetSize = 1,
     planetAngle = 0,
     planetRotationSpeed = 1,
     planetRotationDirection = 'clockwise',
-    planetTexture = '@assets/mercury-map.jpg',
+    planetTexture = '/assets/mercury-map.jpg',
 
     rimHex = 0x0088ff,
     facingHex = 0x000000,
@@ -40,7 +48,10 @@ export default class Planet {
     this.orbitSpeed = orbitSpeed;
     this.orbitRadius = orbitRadius;
     this.orbitRotationDirection = orbitRotationDirection;
-
+    this.onPlanetClick = onPlanetClick;
+    this.camera = camera;
+    this.raycaster = new Raycaster();
+    this.mouse = new Vector2();
     this.planetSize = planetSize;
     this.planetAngle = planetAngle;
     this.planetTexture = planetTexture;
@@ -61,6 +72,8 @@ export default class Planet {
 
     this.animate = this.createAnimateFunction();
     this.animate();
+
+    this.initClickHandler();
   }
 
   createOrbit() {
@@ -180,6 +193,33 @@ export default class Planet {
       this.planetGroup.rotation.y -= this.planetRotationSpeed;
     } else if (this.planetRotationDirection === 'counterclockwise') {
       this.planetGroup.rotation.y += this.planetRotationSpeed;
+    }
+  }
+
+  initClickHandler() {
+    window.addEventListener('click', this.onMouseClick.bind(this));
+  }
+
+  onMouseClick(event) {
+    if (!this.camera) return;
+
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(
+      this.planetGroup.children
+    );
+
+    if (intersects.length > 0 && this.onPlanetClick) {
+      this.onPlanetClick({
+        name: 'Planet',
+        diameter: '12,742 km',
+        orbitSpeed: this.orbitSpeed,
+        orbitRadius: this.orbitRadius,
+        planetSize: this.planetSize,
+        planetRotationSpeed: this.planetRotationSpeed,
+      });
     }
   }
 

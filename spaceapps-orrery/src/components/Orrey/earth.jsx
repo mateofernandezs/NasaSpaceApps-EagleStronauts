@@ -9,7 +9,6 @@ import Planet from './planets.jsx';
 export class Earth extends Planet {
   constructor(props) {
     super(props);
-
     this.createPlanetLights();
     this.createPlanetClouds();
   }
