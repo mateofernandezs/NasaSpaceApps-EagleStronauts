@@ -42,7 +42,7 @@ const convertAsteroidData = (apiAsteroid) => {
     inclination,
     asteroidSize,
     rotationSpeed,
-    asteroidTexture: '/./src/assets/asteroid.jpg', // Default texture
+    asteroidTexture: '/assets/asteroid.jpg', // Default texture
   };
 };
 
@@ -55,7 +55,7 @@ const planets = [
     planetSize: 0.2,
     planetRotationSpeed: 0.005,
     planetRotationDirection: 'counterclockwise',
-    planetTexture: './src/assets/mercurymap.jpg',
+    planetTexture: '/assets/mercurymap.jpg',
     rimHex: 0xf9cf9f,
   },
   {
@@ -66,7 +66,7 @@ const planets = [
     planetSize: 0.5,
     planetRotationSpeed: 0.0005,
     planetRotationDirection: 'clockwise',
-    planetTexture: '/./src/assets/venusmapthumb.jpg',
+    planetTexture: '/assets/venusmapthumb.jpg',
     rimHex: 0xb66f1f,
   },
   {
@@ -77,7 +77,7 @@ const planets = [
     planetSize: 0.3,
     planetRotationSpeed: 0.01,
     planetRotationDirection: 'counterclockwise',
-    planetTexture: '/./src/assets/mars_map.jpg',
+    planetTexture: '/assets/mars_map.jpg',
     rimHex: 0xbc6434,
   },
   {
@@ -88,7 +88,7 @@ const planets = [
     planetSize: 1,
     planetRotationSpeed: 0.06,
     planetRotationDirection: 'counterclockwise',
-    planetTexture: '/./src/assets/jupitermapthumb.jpg',
+    planetTexture: '/assets/jupitermapthumb.jpg',
     rimHex: 0xf3d6b6,
   },
   {
@@ -99,7 +99,7 @@ const planets = [
     planetSize: 0.8,
     planetRotationSpeed: 0.05,
     planetRotationDirection: 'counterclockwise',
-    planetTexture: '/./src/assets/saturnmapthumb.jpg',
+    planetTexture: '/assets/saturnmapthumb.jpg',
     rimHex: 0xd6b892,
     rings: {
       ringsSize: 0.5,
@@ -114,11 +114,11 @@ const planets = [
     planetSize: 0.5,
     planetRotationSpeed: 0.02,
     planetRotationDirection: 'clockwise',
-    planetTexture: '/./src/assets/uranusmapthumb.jpg',
+    planetTexture: '/assets/uranusmapthumb.jpg',
     rimHex: 0x9ab6c2,
     rings: {
       ringsSize: 0.4,
-      ringsTexture: '/./src/assets/uranus-rings.jpg',
+      ringsTexture: '/assets/uranus-rings.jpg',
     },
   },
   {
@@ -129,7 +129,7 @@ const planets = [
     planetSize: 0.5,
     planetRotationSpeed: 0.02,
     planetRotationDirection: 'counterclockwise',
-    planetTexture: '/./src/assets/neptunemapthumb.jpg',
+    planetTexture: '/assets/neptunemapthumb.jpg',
     rimHex: 0x5c7ed7,
   },
 ];
@@ -142,7 +142,7 @@ const asteroids = [
     inclination: 0.2,
     asteroidSize: 0.9,
     rotationSpeed: 0.01,
-    asteroidTexture: '/./src/assets/asteroid.jpg',
+    asteroidTexture: '/assets/asteroid.jpg',
   },
   {
     orbitSpeed: 0.00003,
@@ -151,7 +151,7 @@ const asteroids = [
     inclination: 0.5,
     asteroidSize: 0.9,
     rotationSpeed: 0.015,
-    asteroidTexture: '/./src/assets/asteroid2.jpg',
+    asteroidTexture: '/assets/asteroid2.jpg',
   },
 ];
 
@@ -219,7 +219,7 @@ const ThreeScene = () => {
       planetAngle: (-23.4 * Math.PI) / 180,
       planetRotationSpeed: 0.01,
       planetRotationDirection: 'counterclockwise',
-      planetTexture: '/./src/assets/earth-map-1.jpg',
+      planetTexture: '/assets/earth-map-1.jpg',
     }).getPlanet();
     scene.add(earth);
 

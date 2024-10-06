@@ -44,7 +44,7 @@ class Starfield {
       transparent: true,
       vertexColors: true,
       blending: AdditiveBlending,
-      map: this.loader.load('/src/assets/circle.png'), // Asegúrate de que esta ruta es correcta
+      map: this.loader.load('/assets/circle.png'), // Asegúrate de que esta ruta es correcta
     });
 
     // Crear el objeto de puntos y añadirlo al grupo
