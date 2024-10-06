@@ -16,25 +16,41 @@ const AsteroidScene = () => {
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true; // Activar sombras
         mount.appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        // Luz ambiental
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz suave
         scene.add(ambientLight);
+
+        // Luz direccional
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Aumentar intensidad
+        directionalLight.position.set(50, 50, 50);
+        directionalLight.castShadow = true; // Permitir que la luz direccional proyecte sombras
+        scene.add(directionalLight);
+
+        // Luz de relleno
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3); // Luz de relleno suave
+        fillLight.position.set(-50, -50, -50);
+        scene.add(fillLight);
 
         const loader = new THREE.TextureLoader();
         const texture = loader.load("/src/components/NEOs/textures/asteroidTexture.jpg");
+
         const geometry = new THREE.SphereGeometry(20, 32, 32);
         const material = new THREE.MeshStandardMaterial({
             map: texture,
-            roughness: 1,
-            metalness: 0.3,
+            roughness: 0.8, // Ajustar para obtener sombras más suaves
+            metalness: 0.1, // Reducir metalicidad para una apariencia más rocosa
+            bumpMap: texture, // Agregar un mapa de relieve si tienes uno
+            bumpScale: 0.5, // Ajustar escala del relieve
         });
 
         const asteroid = new THREE.Mesh(geometry, material);
+        asteroid.castShadow = true; // Permitir que el asteroide proyecte sombras
+        asteroid.receiveShadow = true; // Permitir que el asteroide reciba sombras
         scene.add(asteroid);
         asteroidRef.current = asteroid;
-
-        asteroid.geometry.computeBoundingBox();
 
         const animate = () => {
             requestAnimationFrame(animate);
@@ -52,7 +68,7 @@ const AsteroidScene = () => {
             const intersects = raycaster.intersectObject(asteroid);
             if (intersects.length > 0) {
                 setSelectedAsteroid({
-                    name: "IAU NAME",
+                    name: "ASTEROIDE 1",
                     fullName: "NICOLE",
                     PHA: "54132",
                     diameter: "48 km",
