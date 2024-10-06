@@ -8,6 +8,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Starfield from './starField'; 
 import Sun from './sun';
 import Planet from './planets';
+import {Earth} from "./earth.jsx";
 
 const planets = [
   {
@@ -111,6 +112,19 @@ const ThreeScene = () => {
       const planetObj = new Planet(planet).getPlanet();
       scene.add(planetObj);
     });
+
+    const earth = new Earth({
+      orbitSpeed: 0.00029,
+      orbitRadius: 16,
+      orbitRotationDirection: "clockwise",
+      planetSize: 0.5,
+      planetAngle: (-23.4 * Math.PI) / 180,
+      planetRotationSpeed: 0.01,
+      planetRotationDirection: "counterclockwise",
+      planetTexture: "/./src/assets/earth-map-1.jpg",
+    }).getPlanet();
+    scene.add(earth);
+
     controls.minDistance = 10;
     controls.maxDistance = 60;
     camera.position.set(30 * Math.cos(Math.PI / 6), 30 * Math.sin(Math.PI / 6), 40);
