@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: Arial, sans-serif; /* Cambia la fuente según prefieras */
+}
+
+.info-button {
+    position: absolute;
+    bottom: 20px; /* Ubicación vertical del botón */
+    left: 50%; /* Centro horizontal */
+    transform: translateX(-50%); /* Centrar el botón */
+    padding: 10px 20px;
+    font-size: 18px; /* Aumentar tamaño de fuente */
+    background-color: #1e3a5f; /* Color de fondo */
+    color: white; /* Color de texto */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.info-table {
+    position: absolute;
+    bottom: 70px; /* Ubicación vertical de la tabla */
+    left: 50%; /* Centro horizontal */
+    transform: translateX(-50%); /* Centrar la tabla */
+    background-color: rgba(255, 255, 255, 0.8); /* Fondo semitransparente */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.info-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px; /* Tamaño de fuente en la tabla */
+}
+
+.info-table td {
+    padding: 10px; /* Espaciado en las celdas */
+    border-bottom: 1px solid #ccc; /* Línea divisoria entre filas */
+}

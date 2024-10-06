@@ -4,8 +4,8 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: rgba(255, 255, 255, 0.87); /* Color del texto */
+  background-color: #3548ff; /* Fondo negro */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -28,11 +28,14 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #062c80; /* Fondo negro para el cuerpo */
+  color: #ffffff; /* Asegura que el texto sea visible */
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: #ffffff; /* Color blanco para el título */
 }
 
 button {
@@ -42,9 +45,10 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #0f2a65;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: #ffffff; /* Asegura que el texto del botón sea visible */
 }
 button:hover {
   border-color: #646cff;
