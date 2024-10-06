@@ -37,7 +37,7 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
             fontSize: '2rem',
           }}
         >
-          {asteroid.name || 'nombre'}
+          {asteroid.name || '21P/Giacobini-Zinner'}
         </Typography>
         <IconButton onClick={onClose} style={{ color: 'white' }}>
           <CloseIcon />
@@ -66,7 +66,7 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
           marginBottom: '10px',
         }}
       >
-        {asteroid.IAUName || 'IAU Name'}
+        {asteroid.IAUName || 'Giacobini-Zinner'}
       </Typography>
 
       {/* PHA */}
@@ -107,7 +107,7 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
           marginBottom: '5px',
         }}
       >
-        <strong>Diámetro:</strong> {asteroid.diameter || 'DIÁMETRO 4 km'}
+        <strong>Diámetro:</strong> {asteroid.diameter || 'DIÁMETRO 2.0 km'}
       </Typography>
       <Typography
         variant='body1'
@@ -117,8 +117,7 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
           marginBottom: '5px',
         }}
       >
-        <strong>Periodo orbital:</strong> El período orbital es el tiempo que le
-        toma a un astro recorrer su órbita.
+        <strong>Periodo orbital:</strong> 2.39e+03
       </Typography>
       <Typography
         variant='body1'
@@ -129,7 +128,7 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
         }}
       >
         <strong>Earth MOID:</strong> Distancia a la Tierra en años luz:{' '}
-        {asteroid.earthMOID || '86532 au'}
+        {asteroid.earthMOID || '0.0179 au'}
       </Typography>
       <Typography
         variant='body1'
