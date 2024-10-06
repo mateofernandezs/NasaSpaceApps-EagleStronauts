@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Scene, WebGLRenderer, PerspectiveCamera } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Starfield from './starField';
@@ -7,13 +7,12 @@ import Planet from './planets';
 import { Earth } from './earth.jsx';
 import Asteroid from '../NEOs/Asteroid.jsx';
 import AsteroidInfo from '../NEOs/neoInfo.jsx';
-import { getNEOAsteroids } from '../Aux_json_PHA_NEO_parser.jsx';
+import CenterSceneButton from './centerSceneButton.jsx';
 
 const MAX_ORBIT_RADIUS = 60;
 const MIN_ORBIT_RADIUS = 8;
 
 const convertAsteroidData = (apiAsteroid) => {
-  // Scale the semi-major axis to fit within the orbit range [10, 60]
   const semiMajorAxis = Math.max(
     MIN_ORBIT_RADIUS,
     Math.min(MAX_ORBIT_RADIUS, parseFloat(apiAsteroid.a) * 10) // Adjust scaling factor as needed
@@ -155,37 +154,28 @@ const asteroids = [
   },
 ];
 
-const ThreeScene = () => {
+const initialCameraPosition = {
+  x: 30 * Math.cos(Math.PI / 6),
+  y: 30 * Math.sin(Math.PI / 6),
+  z: 40,
+};
+
+export default function ThreeScene() {
   const [selectedAsteroid, setSelectedAsteroid] = React.useState(null);
   const [planetPositions, setPlanetPositions] = React.useState([]);
-  /*const [asteroids, setAsteroids] = React.useState([]);*/
-  const [loading, setLoading] = React.useState(true);
-
-  /*useEffect(() => {
-    // Fetch the asteroid data
-    const fetchAsteroids = async () => {
-      try {
-        const asteroidData = await getNEOAsteroids(); // Fetch asteroid data from NASA API
-        setAsteroids(asteroidData); // Store fetched asteroids
-        setLoading(false); // Set loading to false when data is fetched
-      } catch (error) {
-        console.error("Error fetching asteroids:", error);
-      }
-    };
-
-    fetchAsteroids().then(() => console.log(asteroids)); // Call the function to fetch asteroids data
-  }, []);*/
+  const cameraRef = useRef(null);
+  const controlsRef = useRef(null);
 
   useEffect(() => {
-    /*if (loading) return;*/
-
     const w = window.innerWidth;
     const h = window.innerHeight;
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(75, w / h, 0.1, 100);
+    cameraRef.current = camera;
     const renderer = new WebGLRenderer({ antialias: true });
     const controls = new OrbitControls(camera, renderer.domElement);
+    controlsRef.current = controls;
 
     const starfield = new Starfield({ numStars: 1000 }).getStarfield();
     scene.add(starfield);
@@ -226,10 +216,12 @@ const ThreeScene = () => {
     controls.minDistance = 10;
     controls.maxDistance = 60;
     camera.position.set(
-      30 * Math.cos(Math.PI / 6),
-      30 * Math.sin(Math.PI / 6),
-      40
+      initialCameraPosition.x,
+      initialCameraPosition.y,
+      initialCameraPosition.z
     );
+    controls.target.set(0, 0, 0);
+    controls.update();
 
     renderer.setSize(w, h);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -262,12 +254,25 @@ const ThreeScene = () => {
     setSelectedAsteroid(null); // Reset selected asteroid
   };
 
+  const handleCenterScene = () => {
+    if (cameraRef.current && controlsRef.current) {
+      const camera = cameraRef.current;
+      const controls = controlsRef.current;
+
+      camera.position.set(
+        initialCameraPosition.x,
+        initialCameraPosition.y,
+        initialCameraPosition.z
+      );
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+  };
+
   return (
     <div>
-      {/* Render Asteroid Info component */}
       <AsteroidInfo asteroid={selectedAsteroid} onClose={handleClose} />
+      <CenterSceneButton onClick={handleCenterScene} />
     </div>
   );
-};
-
-export default ThreeScene;
+}
