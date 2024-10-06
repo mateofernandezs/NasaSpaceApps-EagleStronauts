@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"  # Asegúrate de usar la misma versión de Node.js que en tu proyecto local
+
+[build.lifecycle]
+  onBuild = "npm ci"  # 'npm ci' asegura una instalación limpia de las dependencias
