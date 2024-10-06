@@ -13,6 +13,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.tag {
+  position: absolute;
+  color: white;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 0 5px black; /* Optional shadow for better visibility */
+}
+
 a {
   font-weight: 500;
   color: #646cff;
