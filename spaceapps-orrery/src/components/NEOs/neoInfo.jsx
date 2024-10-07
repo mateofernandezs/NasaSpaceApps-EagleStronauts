@@ -98,7 +98,6 @@ const AsteroidInfo = ({ asteroid, onClose }) => {
         </Typography>
       )}
 
-      {/* Información adicional */}
       <Typography
         variant='body1'
         sx={{

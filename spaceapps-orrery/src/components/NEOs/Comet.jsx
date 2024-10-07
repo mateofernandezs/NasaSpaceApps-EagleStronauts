@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import './Comet.css'; // Asegúrate de tener el CSS como antes
+import './Comet.css';
 
 const Comet = () => {
     const mountRef = useRef(null);
