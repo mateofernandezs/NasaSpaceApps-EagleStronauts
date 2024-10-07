@@ -1,19 +1,19 @@
 import {
-    Mesh,
-    Group,
-    TextureLoader,
-    SphereGeometry,
-    MeshStandardMaterial,
-    Raycaster,
-    Vector2,
-    BufferGeometry,
-    LineBasicMaterial,
-    Line,
-    Vector3,
-} from "three";
+  Mesh,
+  Group,
+  TextureLoader,
+  SphereGeometry,
+  MeshStandardMaterial,
+  Raycaster,
+  Vector2,
+  BufferGeometry,
+  LineBasicMaterial,
+  Line,
+  Vector3,
+} from 'three';
 
 export default class Asteroid {
-    group;
+group;
     loader;
     asteroidMesh;
     raycaster;
@@ -135,50 +135,155 @@ export default class Asteroid {
         this.trailLine.geometry = geometry; // Assign the new geometry
     }
 
-    updateProjection() {
-        // Calculate the future position based on the current angle and the projection length
-        const orbitAngle = Date.now() * this.orbitSpeed; // Current orbit angle
-        const projectionAngle = orbitAngle + (this.projectionLength * this.orbitSpeed); // Future orbit angle
+  updateProjection() {
+    const orbitAngle = Date.now() * this.orbitSpeed; 
+    const projectionAngle =
+      orbitAngle + this.projectionLength * this.orbitSpeed; 
 
-        // Get current position
+    const currentX = this.semiMajorAxis * Math.cos(orbitAngle);
+    const currentY =
+      this.semiMajorAxis *
+      Math.sin(orbitAngle) *
+      Math.sqrt(1 - this.eccentricity * this.eccentricity);
+
+    const projectedX = this.semiMajorAxis * Math.cos(projectionAngle);
+    const projectedY =
+      this.semiMajorAxis *
+      Math.sin(projectionAngle) *
+      Math.sqrt(1 - this.eccentricity * this.eccentricity);
+
+    const projectionPoints = [
+      new Vector3(currentX, currentY, 0),
+      new Vector3(projectedX, projectedY, 0),
+    ];
+
+    const geometry = new BufferGeometry().setFromPoints(projectionPoints); 
+    this.projectionLine.geometry.dispose();
+    this.projectionLine.geometry = geometry;
+  }
+
+  createAnimateFunction() {
+    return () => {
+      requestAnimationFrame(this.animate);
+
+      if (this.rotationDirection === 'clockwise') {
+        this.asteroidMesh.rotation.y -= this.rotationSpeed;
+      } else {
+        this.asteroidMesh.rotation.y += this.rotationSpeed;
+      }
+
+      const orbitAngle = Date.now() * this.orbitSpeed;
+      const x = this.semiMajorAxis * Math.cos(orbitAngle);
+      const y =
+        this.semiMajorAxis *
+        Math.sin(orbitAngle) *
+        Math.sqrt(1 - this.eccentricity * this.eccentricity);
+
+      this.asteroidMesh.position.set(x, y, 0);
+
+      this.updateTrail();
+      this.updateProjection();
+    };
+  }
+
+  initClickHandler() {
+    window.addEventListener('click', this.onMouseClick.bind(this));
+  }
+
+  onMouseClick(event) {
+    if (!this.camera) return;
+
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects([this.asteroidMesh]); // Ensure to pass an array of objects
+
+    if (intersects.length > 0 && this.onAsteroidClick) {
+      this.onAsteroidClick({
+        name: 'ASTEROID-001', // Hardcoded example data
+        diameter: '10 km',
+        orbitSpeed: this.orbitSpeed,
+        semiMajorAxis: this.semiMajorAxis,
+        eccentricity: this.eccentricity,
+        inclination: this.inclination,
+        spkID: '123456789',
+        earthMOID: '0.05 au',
+      });
+    }
+  }
+
+    createTrailLine() {
+        const geometry = new BufferGeometry(); 
+        const material = new LineBasicMaterial({ color: this.isPHA ? 0xff0000 : 0x00ff00 }); 
+        this.trailLine = new Line(geometry, material);
+
+        this.group.add(this.trailLine);
+    }
+
+
+    createProjectionLine() {
+        const geometry = new BufferGeometry(); 
+        const material = new LineBasicMaterial({ color: 0xff0000 });
+        this.projectionLine = new Line(geometry, material);
+
+
+        this.group.add(this.projectionLine);
+    }
+
+    updateTrail() {
+
+        const currentPosition = new Vector3().copy(this.asteroidMesh.position);
+
+        this.trail.push(currentPosition);
+
+        if (this.trail.length > this.maxTrailLength) {
+            this.trail.shift();
+        }
+
+        const trailPoints = this.trail.map((point) => point.clone());
+
+        const geometry = new BufferGeometry().setFromPoints(trailPoints); 
+        this.trailLine.geometry.dispose();
+        this.trailLine.geometry = geometry;
+    }
+
+    updateProjection() {
+        const orbitAngle = Date.now() * this.orbitSpeed; 
+        const projectionAngle = orbitAngle + (this.projectionLength * this.orbitSpeed);
+
         const currentX = this.semiMajorAxis * Math.cos(orbitAngle);
         const currentY = this.semiMajorAxis * Math.sin(orbitAngle) * Math.sqrt(1 - this.eccentricity * this.eccentricity);
 
-        // Get projected position
         const projectedX = this.semiMajorAxis * Math.cos(projectionAngle);
         const projectedY = this.semiMajorAxis * Math.sin(projectionAngle) * Math.sqrt(1 - this.eccentricity * this.eccentricity);
 
-        // Create a line from current position to projected position
         const projectionPoints = [
             new Vector3(currentX, currentY, 0),
             new Vector3(projectedX, projectedY, 0)
         ];
 
-        const geometry = new BufferGeometry().setFromPoints(projectionPoints); // Set new points for the projection line
-        this.projectionLine.geometry.dispose(); // Dispose the old geometry
-        this.projectionLine.geometry = geometry; // Assign the new geometry
+        const geometry = new BufferGeometry().setFromPoints(projectionPoints);
+        this.projectionLine.geometry.dispose();
+        this.projectionLine.geometry = geometry; 
     }
 
     createAnimateFunction() {
         return () => {
             requestAnimationFrame(this.animate);
 
-            // Handle rotation of the asteroid itself
             if (this.rotationDirection === "clockwise") {
                 this.asteroidMesh.rotation.y -= this.rotationSpeed;
             } else {
                 this.asteroidMesh.rotation.y += this.rotationSpeed;
             }
 
-            // Animate the elliptical orbit
-            const orbitAngle = Date.now() * this.orbitSpeed; // Time-based angle
+            const orbitAngle = Date.now() * this.orbitSpeed;
             const x = this.semiMajorAxis * Math.cos(orbitAngle);
             const y = this.semiMajorAxis * Math.sin(orbitAngle) * Math.sqrt(1 - this.eccentricity * this.eccentricity);
 
-            // Set asteroid's position along the orbit path
             this.asteroidMesh.position.set(x, y, 0);
 
-            // Update the trail and projection with the new position
             this.updateTrail();
             this.updateProjection();
         };
@@ -195,11 +300,11 @@ export default class Asteroid {
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects([this.asteroidMesh]); // Ensure to pass an array of objects
+        const intersects = this.raycaster.intersectObjects([this.asteroidMesh]);
 
         if (intersects.length > 0 && this.onAsteroidClick) {
             this.onAsteroidClick({
-                name: 'ASTEROID-001', // Hardcoded example data
+                name: 'ASTEROID-001',
                 diameter: '10 km',
                 orbitSpeed: this.orbitSpeed,
                 semiMajorAxis: this.semiMajorAxis,
