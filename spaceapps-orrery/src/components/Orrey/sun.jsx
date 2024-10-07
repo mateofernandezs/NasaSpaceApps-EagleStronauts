@@ -33,8 +33,6 @@ export class Sun {
     const sunGeometry = new IcosahedronGeometry(5, 12);
     const sunMaterial = new MeshBasicMaterial({
       map,
-      emissive: new Color(0xffff99),
-      emissiveIntensity: 1.5,
     });
     const sunMesh = new Mesh(sunGeometry, sunMaterial);
     this.group.add(sunMesh);

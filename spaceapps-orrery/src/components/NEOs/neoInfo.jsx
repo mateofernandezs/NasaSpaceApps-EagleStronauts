@@ -40,18 +40,6 @@ const AsteroidInfo = ({ asteroid, onClose }) => { // Add onClose prop
             <Divider style={{ backgroundColor: 'white', margin: '10px 0' }} />
 
             <Typography
-                variant="h5"
-                sx={{
-                    fontWeight: 'bold',
-                    fontFamily: 'Arial, sans-serif',
-                    fontSize: '1.5rem',
-                    marginBottom: '5px',
-                }}
-            >
-                {asteroid.fullName || "Full Name"}
-            </Typography>
-
-            <Typography
                 variant="body1"
                 sx={{
                     fontFamily: 'Arial, sans-serif',

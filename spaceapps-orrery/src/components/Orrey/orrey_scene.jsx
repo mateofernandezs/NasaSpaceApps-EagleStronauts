@@ -8,6 +8,7 @@ import { Earth } from './earth.jsx';
 import Asteroid from '../NEOs/Asteroid.jsx';
 import AsteroidInfo from '../NEOs/neoInfo.jsx';
 import { getNEOAsteroids } from '../Aux_json_PHA_NEO_parser.jsx';
+import Comet from "../NEOs/Comet.jsx";
 
 const MAX_ORBIT_RADIUS = 60;
 const MIN_ORBIT_RADIUS = 8;
@@ -143,6 +144,7 @@ const asteroids = [
     asteroidSize: 0.9,
     rotationSpeed: 0.01,
     asteroidTexture: '/assets/asteroid.jpg',
+    isPHA: false,
   },
   {
     orbitSpeed: 0.00003,
@@ -152,8 +154,50 @@ const asteroids = [
     asteroidSize: 0.9,
     rotationSpeed: 0.015,
     asteroidTexture: '/assets/asteroid2.jpg',
+    isPHA: false,
+  },
+  {
+    orbitSpeed: 0.0001, // Adjust speed for the PHA
+    semiMajorAxis: 10,  // Closer orbit
+    eccentricity: 0.8,  // Higher eccentricity for close approaches
+    inclination: 0.5,    // Slight inclination
+    asteroidSize: 0.5,   // Smaller size
+    rotationSpeed: 0.02, // Default rotation speed
+    asteroidTexture: '/assets/asteroid2.jpg', // Path to texture for the PHA
+    isPHA: true,         // Flag to indicate that this is a PHA
   },
 ];
+
+const comets = [
+  {
+    orbitSpeed: 0.0003,          // The speed at which the comet orbits
+    semiMajorAxis: 75,           // The size of the comet's orbit (distance from the center)
+    eccentricity: 0.9,           // Eccentricity for elliptical orbit (higher means more elongated)
+    inclination: 0.2,            // Orbit's inclination (tilt)
+    cometSize: 2.0,              // Size of the comet
+    cometTexture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeW0ToF6yIm9h5QgTBBqaUA93R77nxG6_6kg&s", // Path to comet texture image
+    rotationSpeed: 0.02,         // How fast the comet rotates on its own axis
+    rotationDirection: "clockwise", // Rotation direction (clockwise or counter-clockwise)
+    roughness: 0.7,              // Roughness of the comet's surface material
+    metalness: 0.2,              // Reflectivity of the comet's material
+    trailLength: 200             // Length of the comet's white trail
+  },
+  {
+    orbitSpeed: 0.0002,
+    semiMajorAxis: 80,
+    eccentricity: 0.3,
+    inclination: 0.1,
+    cometSize: 1.8,
+    cometTexture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeW0ToF6yIm9h5QgTBBqaUA93R77nxG6_6kg&s",
+    rotationSpeed: 0.015,
+    rotationDirection: "counter-clockwise",
+    roughness: 0.6,
+    metalness: 0.3,
+    trailLength: 180
+  }
+  // Add more cometData objects if you need more comets
+];
+
 
 const ThreeScene = () => {
   const [selectedAsteroid, setSelectedAsteroid] = React.useState(null);
@@ -208,6 +252,15 @@ const ThreeScene = () => {
         camera: camera,
       }).getAsteroid();
       scene.add(asteroidObj);
+    });
+
+    comets.forEach((cometData) => {
+      const cometObj = new Comet({
+        ...cometData,
+        onCometClick: setSelectedAsteroid, // Reuse asteroid click handler for comets
+        camera: camera,
+      }).getComet();
+      scene.add(cometObj);
     });
 
     const earth = new Earth({

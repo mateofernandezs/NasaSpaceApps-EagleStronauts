@@ -1,0 +1,32 @@
+/* src/components/IntroScreen.css */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap'); /* Change the font to Orbitron */
+
+.intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('https://starwalk.space/gallery/images/what-is-space/1920x1080.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    font-family: 'Orbitron', sans-serif; /* Use the imported font */
+    font-size: 2.5rem; /* Increase font size */
+    z-index: 1000; /* Ensure it's on top of everything */
+    transition: opacity 1s ease; /* Smooth transition for fade-out */
+}
+
+.intro-text {
+    text-align: center;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), /* White glow */
+    0 0 20px rgba(0, 255, 255, 0.6); /* Cyan glow */
+    letter-spacing: 2px; /* Space out the letters */
+}
+
+.intro-screen.hidden {
+    opacity: 0; /* Fade-out effect */
+    pointer-events: none; /* Prevent interaction when hidden */
+}

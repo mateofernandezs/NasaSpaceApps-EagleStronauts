@@ -41,6 +41,7 @@ export default class Asteroid {
                     camera = null,
                     trailLength = 100, // Length of the trail (number of points)
                     projectionLength = 20, // Length of the projection line
+                    isPHA = false, // Flag to indicate if the asteroid is a PHA
                 } = {}) {
         this.orbitSpeed = orbitSpeed;
         this.semiMajorAxis = semiMajorAxis;
@@ -55,6 +56,7 @@ export default class Asteroid {
         this.metalness = metalness;
         this.onAsteroidClick = onAsteroidClick;
         this.camera = camera;
+        this.isPHA = isPHA;
 
         this.group = new Group();
         this.loader = new TextureLoader();
@@ -96,7 +98,7 @@ export default class Asteroid {
     // Create the initial empty trail line
     createTrailLine() {
         const geometry = new BufferGeometry(); // Will update points dynamically
-        const material = new LineBasicMaterial({ color: 0x00ff00 }); // Green trail
+        const material = new LineBasicMaterial({ color: this.isPHA ? 0xff0000 : 0x00ff00 }); // Green trail
         this.trailLine = new Line(geometry, material);
 
         // Add trail line to the scene
@@ -203,6 +205,7 @@ export default class Asteroid {
                 semiMajorAxis: this.semiMajorAxis,
                 eccentricity: this.eccentricity,
                 inclination: this.inclination,
+                PHA: this.isPHA,
                 spkID: '123456789',
                 earthMOID: '0.05 au',
             });

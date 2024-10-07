@@ -1,214 +1,171 @@
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import './Comet.css'; // Asegúrate de tener el CSS como antes
+import {
+    Mesh,
+    Group,
+    TextureLoader,
+    SphereGeometry,
+    MeshStandardMaterial,
+    Raycaster,
+    Vector2,
+    BufferGeometry,
+    LineBasicMaterial,
+    Line,
+    Vector3,
+} from "three";
 
-const Comet = () => {
-    const mountRef = useRef(null);
-    const [showInfo, setShowInfo] = useState(false);
-    const [scaleFactor, setScaleFactor] = useState(1); // Para controlar el tamaño del cometa
+export default class Comet {
+    group;
+    loader;
+    cometMesh;
+    raycaster;
+    mouse;
+    onCometClick;
+    trail; // To store the comet's trail
+    trailLine; // The line representing the trail
+    maxTrailLength; // Max length of the trail
 
-    useEffect(() => {
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x0a2b5b, 1);
-        document.body.appendChild(renderer.domElement);
+    constructor({
+                    orbitSpeed = 0.0002,
+                    semiMajorAxis = 50,
+                    eccentricity = 0.7,
+                    inclination = 0.1,
+                    cometSize = 1.5,
+                    cometTexture = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeW0ToF6yIm9h5QgTBBqaUA93R77nxG6_6kg&s",
+                    rotationSpeed = 0.01,
+                    rotationDirection = "clockwise",
+                    roughness = 0.8,
+                    metalness = 0.1,
+                    onCometClick = null,
+                    camera = null,
+                    trailLength = 150, // Length of the comet's trail
+                } = {}) {
+        this.orbitSpeed = orbitSpeed;
+        this.semiMajorAxis = semiMajorAxis;
+        this.eccentricity = eccentricity;
+        this.inclination = inclination;
+        this.cometSize = cometSize;
+        this.cometTexture = cometTexture;
+        this.rotationSpeed = rotationSpeed;
+        this.rotationDirection = rotationDirection;
+        this.roughness = roughness;
+        this.metalness = metalness;
+        this.onCometClick = onCometClick;
+        this.camera = camera;
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.1;
-        controls.autoRotate = true;
+        this.group = new Group();
+        this.loader = new TextureLoader();
+        this.cometMesh = null;
 
-        camera.position.z = 7;
+        this.raycaster = new Raycaster();
+        this.mouse = new Vector2();
 
-        const geometry = new THREE.SphereGeometry(1, 32, 32);
-        const positions = geometry.attributes.position.array;
+        this.trail = []; // Initialize empty trail array
+        this.maxTrailLength = trailLength; // Max number of points in the trail
 
-        for (let i = 0; i < positions.length; i += 3) {
-            const displacement = (Math.random() - 0.5) * 0.3;
-            positions[i] += displacement;
-            positions[i + 1] += displacement;
-            positions[i + 2] += displacement;
+        this.createComet();
+        this.createTrailLine(); // Create the trail line (initially empty)
+
+        this.animate = this.createAnimateFunction();
+        this.animate();
+
+        // Initialize the click handler to make comets clickable
+        this.initClickHandler();
+    }
+
+    createComet() {
+        const texture = this.loader.load(this.cometTexture);
+        const cometGeometry = new SphereGeometry(this.cometSize, 32, 32);
+        const cometMaterial = new MeshStandardMaterial({
+            map: texture,
+            roughness: this.roughness,
+            metalness: this.metalness,
+        });
+        this.cometMesh = new Mesh(cometGeometry, cometMaterial);
+        this.cometMesh.castShadow = true;
+        this.cometMesh.receiveShadow = true;
+
+        this.group.add(this.cometMesh);
+    }
+
+    // Create the initial empty white trail line
+    createTrailLine() {
+        const geometry = new BufferGeometry(); // Will update points dynamically
+        const material = new LineBasicMaterial({ color: 0xffffff }); // White trail
+        this.trailLine = new Line(geometry, material);
+
+        // Add trail line to the scene
+        this.group.add(this.trailLine);
+    }
+
+    updateTrail() {
+        // Get current position of the comet
+        const currentPosition = new Vector3().copy(this.cometMesh.position);
+
+        // Add the current position to the trail
+        this.trail.push(currentPosition);
+
+        // Limit the length of the trail (remove oldest points)
+        if (this.trail.length > this.maxTrailLength) {
+            this.trail.shift(); // Remove the oldest position
         }
-        geometry.attributes.position.needsUpdate = true;
 
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('/Comet.jpg', (texture) => {
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(4, 4);
+        // Update the geometry of the trail line with the updated trail points
+        const trailPoints = this.trail.map((point) => point.clone());
 
-            const material = new THREE.MeshBasicMaterial({
-                map: texture,
-            });
+        const geometry = new BufferGeometry().setFromPoints(trailPoints); // Set new points for the trail
+        this.trailLine.geometry.dispose(); // Dispose the old geometry
+        this.trailLine.geometry = geometry; // Assign the new geometry
+    }
 
-            const comet = new THREE.Mesh(geometry, material);
-            scene.add(comet);
+    createAnimateFunction() {
+        return () => {
+            requestAnimationFrame(this.animate);
 
-            const particleCount = 1875;
-            const particleGeometry = new THREE.BufferGeometry();
-            const particlePositions = new Float32Array(particleCount * 3);
-            const particleColors = new Float32Array(particleCount * 3);
-            const particleLife = new Float32Array(particleCount);
-            const particleOpacity = new Float32Array(particleCount);
-            const particleGroup = new Float32Array(particleCount);
-
-            for (let i = 0; i < particleCount; i++) {
-                particleLife[i] = Math.random() * 2 + 1;
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 2 + 2;
-
-                particlePositions[i * 3] = Math.cos(angle) * distance;
-                particlePositions[i * 3 + 1] = Math.sin(angle) * distance;
-                particlePositions[i * 3 + 2] = Math.random() * 5;
-                particleColors[i * 3] = 1.0;
-                particleColors[i * 3 + 1] = 1.0;
-                particleColors[i * 3 + 2] = 1.0;
-                particleOpacity[i] = 1.0;
-                particleGroup[i] = -1;
+            // Handle rotation of the comet itself
+            if (this.rotationDirection === "clockwise") {
+                this.cometMesh.rotation.y -= this.rotationSpeed;
+            } else {
+                this.cometMesh.rotation.y += this.rotationSpeed;
             }
 
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-            particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
-            particleGeometry.setAttribute('aLife', new THREE.BufferAttribute(particleLife, 1));
-            particleGeometry.setAttribute('aOpacity', new THREE.BufferAttribute(particleOpacity, 1));
+            // Animate the elliptical orbit
+            const orbitAngle = Date.now() * this.orbitSpeed;
+            const x = this.semiMajorAxis * Math.cos(orbitAngle);
+            const y = this.semiMajorAxis * Math.sin(orbitAngle) * Math.sqrt(1 - this.eccentricity * this.eccentricity);
 
-            const particleMaterial = new THREE.PointsMaterial({ size: 0.05, vertexColors: true, transparent: true });
-            const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-            comet.add(particleSystem);
+            // Set comet's position along the orbit path
+            this.cometMesh.position.set(x, y, 0);
 
-            const animate = function () {
-                requestAnimationFrame(animate);
-                comet.rotation.x += 0.01;
-                comet.rotation.y = 0.01;
-                comet.rotation.z = 0.01;
-
-                for (let i = 0; i < particleCount; i++) {
-                    particleLife[i] -= 0.01;
-                    particlePositions[i * 3 + 2] -= 0.1;
-                    const distanceFromCenter = Math.abs(particlePositions[i * 3 + 2]);
-                    particleOpacity[i] = Math.max(0, 1 - distanceFromCenter / 5);
-
-                    if (particleLife[i] <= 0) {
-                        particleGroup[i] = -1;
-                        particlePositions[i * 3 + 2] = 0;
-                        particlePositions[i * 3] = (Math.random() - 0.5) * 2;
-                        particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 2;
-                        particleLife[i] = Math.random() * 2 + 1;
-                    }
-
-                    if (Math.random() < 0.04) {
-                        particleLife[i] = Math.random() * 2 + 1;
-                        particlePositions[i * 3 + 2] = 0;
-                        particlePositions[i * 3] = (Math.random() - 0.5) * 2;
-                        particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 2;
-                        particleGroup[i] = i;
-                    }
-                }
-
-                particleGeometry.attributes.position.needsUpdate = true;
-                particleGeometry.attributes.color.needsUpdate = true;
-                particleGeometry.attributes.aLife.needsUpdate = true;
-                particleGeometry.attributes.aOpacity.needsUpdate = true;
-
-                comet.scale.set(scaleFactor, scaleFactor, scaleFactor); // Aplicar el factor de escala
-                controls.update();
-                renderer.render(scene, camera);
-            };
-
-            animate();
-
-            // Hacer clic en el cometa o partículas para restaurar la vista original
-            const onClick = (event) => {
-                if (scaleFactor === 1 / 12) {
-                    setScaleFactor(1);
-                    setShowInfo(false);
-                }
-            };
-
-            renderer.domElement.addEventListener('click', onClick);
-
-            return () => {
-                document.body.removeChild(renderer.domElement);
-                renderer.domElement.removeEventListener('click', onClick);
-            };
-        });
-
-        return () => {
-            document.body.removeChild(renderer.domElement);
+            // Update the trail with the new position
+            this.updateTrail();
         };
-    }, [scaleFactor]);
+    }
 
-    const handleToggleInfo = () => {
-        setShowInfo(!showInfo);
-    };
+    initClickHandler() {
+        window.addEventListener("click", this.onMouseClick.bind(this));
+    }
 
-    const handleScaleDown = () => {
-        setShowInfo(false); // Hacer desaparecer el botón de información
-        setScaleFactor(1 / 12); // Cambiar el tamaño del cometa
-    };
+    onMouseClick(event) {
+        if (!this.camera) return;
 
-    return (
-        <>
-            <div ref={mountRef} />
-            {scaleFactor === 1 && (
-                <>
-                    <button className="info-button" style={{ position: 'absolute', bottom: '20px', left: '20px' }} onClick={handleToggleInfo}>
-                        INFORMACION
-                    </button>
-                    {showInfo && (
-                        <div className="info-table">
-                            <table>
-                                <tbody>
-                                <tr>
-                                    <td>Object Fullname</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>IAU Name</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>NEO</td>
-                                    <td>(Y/N)</td>
-                                </tr>
-                                <tr>
-                                    <td>PHA</td>
-                                    <td>(Y/N)</td>
-                                </tr>
-                                <tr>
-                                    <td>Diameter</td>
-                                    <td>(km)</td>
-                                </tr>
-                                <tr>
-                                    <td>Orbit ID</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td>Period</td>
-                                    <td>(years)</td>
-                                </tr>
-                                <tr>
-                                    <td>Earth MOID</td>
-                                    <td>(au)</td>
-                                </tr>
-                                <tr>
-                                    <td>Orbit Class</td>
-                                    <td></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                    <button className="scale-button" style={{ position: 'absolute', bottom: '20px', right: '20px' }} onClick={handleScaleDown}>
-                        ESCALA
-                    </button>
-                </>
-            )}
-        </>
-    );
-};
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-export default Comet;
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const intersects = this.raycaster.intersectObjects([this.cometMesh]);
+
+        if (intersects.length > 0 && this.onCometClick) {
+            this.onCometClick({
+                name: 'COMET-001', // Example data
+                diameter: '20 km',
+                orbitSpeed: this.orbitSpeed,
+                semiMajorAxis: this.semiMajorAxis,
+                eccentricity: this.eccentricity,
+                inclination: this.inclination,
+            });
+        }
+    }
+
+    getComet() {
+        return this.group;
+    }
+}
